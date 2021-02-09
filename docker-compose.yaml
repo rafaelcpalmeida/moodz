@@ -1,8 +1,7 @@
 version: '3.4'
 services:
   web:
-    image: golang:1.15
-    entrypoint: go run .
+    build: .
     working_dir: /app
     volumes:
     - ./:/app
