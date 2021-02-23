@@ -17,6 +17,7 @@ type AppConfigurations struct {
 	PrefixesFilePath     string
 	BusinessSectorAPIURL string
 	WebServerHost        string
+	WebServerPort        int
 	WebServerTimeout     int
 }
 
@@ -26,7 +27,7 @@ func main() {
 		log.Fatalf("Couldn't setup configurations. Error: %v", err)
 	}
 
-	srv := controllers.NewWebServer(configs.WebServerHost)
+	srv := controllers.NewWebServer(configs.WebServerHost, configs.WebServerPort)
 	errChan := make(chan error)
 	sigChan := make(chan os.Signal)
 
@@ -54,9 +55,16 @@ func main() {
 }
 
 func (ac *AppConfigurations) loadConfigs() error {
-	ac.WebServerHost = os.Getenv("WEB_SEVER_HOST")
-	if ac.WebServerHost == "" {
-		return errors.New("env var WEB_SEVER_HOST cannot be empty")
+	ac.WebServerHost = os.Getenv("HOST")
+
+	webServerPortValue, err := strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		return errors.New("env var PORT is not a number")
+	}
+
+	ac.WebServerPort = webServerPortValue
+	if ac.WebServerPort == 0 {
+		return errors.New("env var PORT cannot be zero")
 	}
 
 	timeout := os.Getenv("WEB_SEVER_TIMEOUT")

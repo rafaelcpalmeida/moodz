@@ -10,22 +10,25 @@ import (
 )
 
 type Server struct {
-	Address                  string
-	server                   *http.Server
-	router                   *gin.Engine
+	address string
+	port    int
+	server  *http.Server
+	router  *gin.Engine
 }
 
 func NewWebServer(
 	address string,
+	port int,
 ) Server {
 	httpserver := Server{
-		Address:                  address,
+		address: address,
+		port:    port,
 	}
 
 	router := httpserver.setupRouter()
 
 	srv := &http.Server{
-		Addr:    address,
+		Addr:    fmt.Sprintf("%s:%d", address, port),
 		Handler: router,
 	}
 
@@ -36,7 +39,7 @@ func NewWebServer(
 }
 
 func (s Server) ListenAndServe(c chan error) {
-	log.Printf("Ready to handle requests on %s\n", s.Address)
+	log.Printf("Ready to handle requests on %s:%d\n", s.address, s.port)
 	if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		fmt.Printf("Got err. %s\n", err.Error())
 		c <- err
